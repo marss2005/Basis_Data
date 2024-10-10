@@ -25,10 +25,20 @@ SELECT prodi, count(*) AS jml_mhs
 FROM mahasiswa 
 WHERE prodi = 'INF';
 
+
 SELECT prodi, COUNT(prodi) AS jml_mhs
 FROM mahasiswa
 GROUP BY prodi
 HAVING COUNT(prodi) >= 2;
+
+SELECT 
+    AVG(bayar) AS avg_bayar,        
+    COUNT(prodi) AS count_informatika, 
+    COUNT(*) AS total_mahasiswa,   
+    MAX(bayar) AS max_bayar,       
+    MIN(bayar) AS min_bayar           
+FROM mahasiswa;
+
 
 SELECT prodi, SUM(bayar) AS total_bayar
 FROM mahasiswa
@@ -42,3 +52,6 @@ LIMIT 1;
 
 SELECT DISTINCT prodi 
 FROM mahasiswa;
+
+SELECT * FROM mahasiswa
+ORDER BY prodi ASC, bayar DESC;

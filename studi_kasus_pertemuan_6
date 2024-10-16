@@ -1,77 +1,222 @@
 -- DDL
-CREATE TABLE Anak (
+CREATE DATABASE NutriBalanceDB;
+
+USE NutriBalanceDB;
+
+-- Membuat tabel pengguna
+CREATE TABLE pengguna (
+    id_pengguna INT AUTO_INCREMENT PRIMARY KEY,
+    nama VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    kata_sandi VARCHAR(100) NOT NULL,
+    no_hp VARCHAR(15),
+    peran ENUM('Ibu', 'Anak') NOT NULL
+);
+
+-- Membuat tabel anak
+CREATE TABLE anak (
     id_anak INT AUTO_INCREMENT PRIMARY KEY,
-    nama_anak VARCHAR(255),
-    usia INT,
-    preferensi_makanan VARCHAR(255),
-    alergi VARCHAR(255),
-    kebutuhan_khusus VARCHAR(255)
+    id_pengguna INT NOT NULL,
+    nama_anak VARCHAR(100) NOT NULL,
+    usia INT NOT NULL,
+    preferensi_makanan TEXT,
+    alergi TEXT,
+    kebutuhan_khusus TEXT,
+    FOREIGN KEY (id_pengguna) REFERENCES pengguna(id_pengguna) ON DELETE CASCADE
 );
 
-CREATE TABLE Rencana_Makanan (
+-- Membuat tabel menu_makanan
+CREATE TABLE menu_makanan (
+    id_menu INT AUTO_INCREMENT PRIMARY KEY,
+    nama_makanan VARCHAR(100) NOT NULL,
+    kalori INT NOT NULL,
+    kandungan_nutrisi TEXT NOT NULL,
+    jenis_makanan ENUM('Sarapan', 'Makan Siang', 'Makan Malam', 'Camilan') NOT NULL
+);
+
+-- Membuat tabel rencana_makanan
+CREATE TABLE rencana_makanan (
     id_rencana INT AUTO_INCREMENT PRIMARY KEY,
-    id_anak INT,
-    jenis_makanan VARCHAR(255),
-    waktu_makan VARCHAR(255),
-    bahan_makanan VARCHAR(255),
-    kebutuhan_gizi VARCHAR(255),
-    FOREIGN KEY (id_anak) REFERENCES Anak(id_anak)
-);
-
-CREATE TABLE Resep (
-    id_resep INT AUTO_INCREMENT PRIMARY KEY,
-    nama_resep VARCHAR(255),
-    bahan TEXT,
-    langkah TEXT,
-    kebutuhan_gizi VARCHAR(255)
+    id_anak INT NOT NULL,
+    tanggal DATE NOT NULL,
+    waktu_makan ENUM('Sarapan', 'Makan Siang', 'Makan Malam', 'Camilan') NOT NULL,
+    id_menu INT NOT NULL,
+    catatan TEXT,
+    FOREIGN KEY (id_anak) REFERENCES anak(id_anak) ON DELETE CASCADE,
+    FOREIGN KEY (id_menu) REFERENCES menu_makanan(id_menu) ON DELETE CASCADE
 );
 
 -- DQL
-SELECT * FROM Anak;
-SELECT * FROM Rencana_Makanan WHERE id_anak = ?;
-SELECT * FROM Resep WHERE nama_resep LIKE ?;
+-- Ambil data dari tabel pengguna berdasarkan id
+SELECT * FROM pengguna WHERE id_pengguna = 1;
+
+-- Ambil data dari tabel anak berdasarkan id
+SELECT * FROM anak WHERE id_anak = 1;
+
+-- Ambil data dari tabel rencana_makanan berdasarkan anak dan tanggal
+SELECT * FROM rencana_makanan WHERE id_anak = 1 AND tanggal = '2024-09-26';
+
+-- Rekomendasi makanan sehat untuk sarapan dengan kalori di bawah 300
+SELECT nama_makanan, kalori, kandungan_nutrisi 
+FROM menu_makanan 
+WHERE jenis_makanan = 'Sarapan' AND kalori < 300;
+
 
 -- DML
-INSERT INTO Anak (nama_anak, usia, preferensi_makanan, alergi, kebutuhan_khusus) VALUES (?, ?, ?, ?, ?);
-UPDATE Anak SET usia = ? WHERE id_anak = ?;
-DELETE FROM Anak WHERE id_anak = ?;
+-- Tambah data ke tabel pengguna
+INSERT INTO pengguna (nama, email, kata_sandi, no_hp, peran) 
+VALUES ('Maya', 'maya@gmail.com', 'password123', '0812345678', 'Ibu');
 
--- Store Procedures DQL
+-- Ubah nomor hp pengguna
+UPDATE pengguna SET no_hp = '0812345679' WHERE id_pengguna = 1;
+
+-- Hapus data pengguna
+DELETE FROM pengguna WHERE id_pengguna = 1;
+
+-- Tambah data ke tabel anak
+INSERT INTO anak (id_pengguna, nama_anak, usia, preferensi_makanan, alergi, kebutuhan_khusus) 
+VALUES (1, 'Lily', 6, 'Suka sayur', 'Tidak ada', 'Tidak ada');
+
+-- Ubah preferensi makanan anak
+UPDATE anak SET preferensi_makanan = 'Suka buah' WHERE id_anak = 1;
+
+-- Hapus data anak
+DELETE FROM anak WHERE id_anak = 1;
+
+-- Tambah data ke tabel rencana_makanan
+INSERT INTO rencana_makanan (id_anak, tanggal, waktu_makan, id_menu, catatan) 
+VALUES (1, '2024-09-26', 'Sarapan', 2, 'Makanan favorit Lily');
+
+-- Ubah menu makanan di rencana_makanan
+UPDATE rencana_makanan SET id_menu = 3 WHERE id_rencana = 1;
+
+-- Hapus data rencana_makanan
+DELETE FROM rencana_makanan WHERE id_rencana = 1;
+
 DELIMITER //
 
-CREATE PROCEDURE GetAnak()
+-- Stored procedure untuk DDL (Create Tables)
+CREATE PROCEDURE createTables()
 BEGIN
-    SELECT * FROM Anak;
+    -- Membuat tabel pengguna
+    CREATE TABLE IF NOT EXISTS pengguna (
+        id_pengguna INT AUTO_INCREMENT PRIMARY KEY,
+        nama VARCHAR(100) NOT NULL,
+        email VARCHAR(100) NOT NULL UNIQUE,
+        kata_sandi VARCHAR(100) NOT NULL,
+        no_hp VARCHAR(15),
+        peran ENUM('Ibu', 'Anak') NOT NULL
+    );
+
+    -- Membuat tabel anak
+    CREATE TABLE IF NOT EXISTS anak (
+        id_anak INT AUTO_INCREMENT PRIMARY KEY,
+        id_pengguna INT NOT NULL,
+        nama_anak VARCHAR(100) NOT NULL,
+        usia INT NOT NULL,
+        preferensi_makanan TEXT,
+        alergi TEXT,
+        kebutuhan_khusus TEXT,
+        FOREIGN KEY (id_pengguna) REFERENCES pengguna(id_pengguna) ON DELETE CASCADE
+    );
+
+    -- Membuat tabel menu_makanan
+    CREATE TABLE IF NOT EXISTS menu_makanan (
+        id_menu INT AUTO_INCREMENT PRIMARY KEY,
+        nama_makanan VARCHAR(100) NOT NULL,
+        kalori INT NOT NULL,
+        kandungan_nutrisi TEXT NOT NULL,
+        jenis_makanan ENUM('Sarapan', 'Makan Siang', 'Makan Malam', 'Camilan') NOT NULL
+    );
+
+    -- Membuat tabel rencana_makanan
+    CREATE TABLE IF NOT EXISTS rencana_makanan (
+        id_rencana INT AUTO_INCREMENT PRIMARY KEY,
+        id_anak INT NOT NULL,
+        tanggal DATE NOT NULL,
+        waktu_makan ENUM('Sarapan', 'Makan Siang', 'Makan Malam', 'Camilan') NOT NULL,
+        id_menu INT NOT NULL,
+        catatan TEXT,
+        FOREIGN KEY (id_anak) REFERENCES anak(id_anak) ON DELETE CASCADE,
+        FOREIGN KEY (id_menu) REFERENCES menu_makanan(id_menu) ON DELETE CASCADE
+    );
 END //
 
-CREATE PROCEDURE GetRencanaMakananByAnak(IN anak_id INT)
+-- Stored procedure untuk DQL (Select Queries)
+CREATE PROCEDURE getPenggunaById(IN penggunaId INT)
 BEGIN
-    SELECT * FROM Rencana_Makanan WHERE id_anak = anak_id;
+    SELECT * FROM pengguna WHERE id_pengguna = penggunaId;
 END //
 
-CREATE PROCEDURE GetResepByNama(IN resep_name VARCHAR(255))
+CREATE PROCEDURE getAnakById(IN anakId INT)
 BEGIN
-    SELECT * FROM Resep WHERE nama_resep LIKE CONCAT('%', resep_name, '%');
+    SELECT * FROM anak WHERE id_anak = anakId;
 END //
 
-DELIMITER ;
-
--- Store Procedures DML
-DELIMITER //
-
-CREATE PROCEDURE AddAnak(IN nama VARCHAR(255), IN usia INT, IN preferensi VARCHAR(255), IN alergi VARCHAR(255), IN kebutuhan VARCHAR(255))
+CREATE PROCEDURE getHealthyMenu(IN max_calories INT)
 BEGIN
-    INSERT INTO Anak (nama_anak, usia, preferensi_makanan, alergi, kebutuhan_khusus) VALUES (nama, usia, preferensi, alergi, kebutuhan);
+    SELECT nama_makanan, kalori, kandungan_nutrisi 
+    FROM menu_makanan 
+    WHERE kalori <= max_calories;
 END //
 
-CREATE PROCEDURE UpdateAnak(IN id INT, IN usia INT)
+-- Stored procedure untuk DML (Insert, Update, Delete)
+
+-- Stored procedure untuk INSERT data ke tabel pengguna
+CREATE PROCEDURE insertPengguna(
+    IN namaPengguna VARCHAR(100), 
+    IN emailPengguna VARCHAR(100), 
+    IN kataSandiPengguna VARCHAR(100), 
+    IN noHpPengguna VARCHAR(15), 
+    IN peranPengguna ENUM('Ibu', 'Anak')
+)
 BEGIN
-    UPDATE Anak SET usia = usia WHERE id_anak = id;
+    INSERT INTO pengguna (nama, email, kata_sandi, no_hp, peran) 
+    VALUES (namaPengguna, emailPengguna, kataSandiPengguna, noHpPengguna, peranPengguna);
 END //
 
-CREATE PROCEDURE DeleteAnak(IN id INT)
+-- Stored procedure untuk UPDATE nomor HP pengguna
+CREATE PROCEDURE updateNoHpPengguna(
+    IN penggunaId INT, 
+    IN newNoHp VARCHAR(15)
+)
 BEGIN
-    DELETE FROM Anak WHERE id_anak = id;
+    UPDATE pengguna SET no_hp = newNoHp WHERE id_pengguna = penggunaId;
+END //
+
+-- Stored procedure untuk DELETE pengguna
+CREATE PROCEDURE deletePengguna(IN penggunaId INT)
+BEGIN
+    DELETE FROM pengguna WHERE id_pengguna = penggunaId;
+END //
+
+-- Stored procedure untuk INSERT data ke tabel anak
+CREATE PROCEDURE insertAnak(
+    IN penggunaId INT, 
+    IN namaAnak VARCHAR(100), 
+    IN usiaAnak INT, 
+    IN preferensiMakanan TEXT, 
+    IN alergiAnak TEXT, 
+    IN kebutuhanKhusus TEXT
+)
+BEGIN
+    INSERT INTO anak (id_pengguna, nama_anak, usia, preferensi_makanan, alergi, kebutuhan_khusus) 
+    VALUES (penggunaId, namaAnak, usiaAnak, preferensiMakanan, alergiAnak, kebutuhanKhusus);
+END //
+
+-- Stored procedure untuk UPDATE preferensi makanan anak
+CREATE PROCEDURE updatePreferensiMakananAnak(
+    IN anakId INT, 
+    IN newPreferensiMakanan TEXT
+)
+BEGIN
+    UPDATE anak SET preferensi_makanan = newPreferensiMakanan WHERE id_anak = anakId;
+END //
+
+-- Stored procedure untuk DELETE data anak
+CREATE PROCEDURE deleteAnak(IN anakId INT)
+BEGIN
+    DELETE FROM anak WHERE id_anak = anakId;
 END //
 
 DELIMITER ;

@@ -220,3 +220,22 @@ BEGIN
 END //
 
 DELIMITER ;
+
+-- Insert data ke tabel pengguna
+CALL insertPengguna('Maya', 'maya@gmail.com', 'password123', '0812345678', 'Ibu');
+
+-- Update nomor HP pengguna
+CALL updateNoHpPengguna(1, '0812345679');
+
+-- Hapus data pengguna
+CALL deletePengguna(1);
+
+-- Insert data ke tabel anak
+CALL insertAnak(1, 'Lily', 6, 'Suka sayur', 'Tidak ada', 'Tidak ada');
+
+-- Update preferensi makanan anak
+CALL updatePreferensiMakananAnak(1, 'Suka buah');
+
+-- Hapus data anak
+CALL deleteAnak(1);
+

@@ -83,6 +83,16 @@ UPDATE anak SET preferensi_makanan = 'Suka buah' WHERE id_anak = 1;
 -- Hapus data anak
 DELETE FROM anak WHERE id_anak = 1;
 
+-- Tambah data ke tabel menu_makanan
+INSERT INTO menu_makanan (nama_makanan, kalori, kandungan_nutrisi, jenis_makanan) 
+VALUES ('Omelette', 250, 'Protein tinggi', 'Sarapan');
+
+-- Ubah menu makanan di rencana_makanan
+UPDATE menu_makanan SET kalori = 300 WHERE id_menu = 1;
+
+-- Hapus data anak
+DELETE FROM menu_makanan WHERE jenis_makanan = 'Sarapan';
+
 -- Tambah data ke tabel rencana_makanan
 INSERT INTO rencana_makanan (id_anak, tanggal, waktu_makan, id_menu, catatan) 
 VALUES (1, '2024-09-26', 'Sarapan', 2, 'Makanan favorit Lily');
